@@ -6099,12 +6099,13 @@
   ContentTools.ToolboxUI = (function(_super) {
     __extends(ToolboxUI, _super);
 
-    function ToolboxUI(tools) {
+    function ToolboxUI(tools, inline) {
       this._onStopDragging = __bind(this._onStopDragging, this);
       this._onStartDragging = __bind(this._onStartDragging, this);
       this._onDrag = __bind(this._onDrag, this);
       ToolboxUI.__super__.constructor.call(this);
       this._tools = tools;
+      this._inline = inline;
       this._dragging = false;
       this._draggingOffset = null;
       this._domGrip = null;
@@ -6122,13 +6123,19 @@
 
     ToolboxUI.prototype.mount = function() {
       var coord, position, restore;
-      this._domElement = this.constructor.createDiv(['ct-widget', 'ct-toolbox']);
+      if (this._inline) {
+        this._domElement = this.constructor.createDiv(['ct-widget', 'ct-toolbox-inline']);
+      } else {
+        this._domElement = this.constructor.createDiv(['ct-widget', 'ct-toolbox']);
+      }
       this.parent().domElement().appendChild(this._domElement);
-      this._domGrip = this.constructor.createDiv(['ct-toolbox__grip', 'ct-grip']);
-      this._domElement.appendChild(this._domGrip);
-      this._domGrip.appendChild(this.constructor.createDiv(['ct-grip__bump']));
-      this._domGrip.appendChild(this.constructor.createDiv(['ct-grip__bump']));
-      this._domGrip.appendChild(this.constructor.createDiv(['ct-grip__bump']));
+      if (!this._inline) {
+        this._domGrip = this.constructor.createDiv(['ct-toolbox__grip', 'ct-grip']);
+        this._domElement.appendChild(this._domGrip);
+        this._domGrip.appendChild(this.constructor.createDiv(['ct-grip__bump']));
+        this._domGrip.appendChild(this.constructor.createDiv(['ct-grip__bump']));
+        this._domGrip.appendChild(this.constructor.createDiv(['ct-grip__bump']));
+      }
       this._domToolGroups = this.constructor.createDiv(['ct-tool-groups']);
       this._domElement.appendChild(this._domToolGroups);
       this.tools(this._tools);
@@ -6218,20 +6225,22 @@
     };
 
     ToolboxUI.prototype._addDOMEventListeners = function() {
-      this._domGrip.addEventListener('mousedown', this._onStartDragging);
-      this._handleResize = (function(_this) {
-        return function(ev) {
-          var containResize;
-          if (_this._resizeTimeout) {
-            clearTimeout(_this._resizeTimeout);
-          }
-          containResize = function() {
-            return _this._contain();
+      if (!this._inline) {
+        this._domGrip.addEventListener('mousedown', this._onStartDragging);
+        this._handleResize = (function(_this) {
+          return function(ev) {
+            var containResize;
+            if (_this._resizeTimeout) {
+              clearTimeout(_this._resizeTimeout);
+            }
+            containResize = function() {
+              return _this._contain();
+            };
+            return _this._resizeTimeout = setTimeout(containResize, 250);
           };
-          return _this._resizeTimeout = setTimeout(containResize, 250);
-        };
-      })(this);
-      window.addEventListener('resize', this._handleResize);
+        })(this);
+        window.addEventListener('resize', this._handleResize);
+      }
       this._updateTools = (function(_this) {
         return function() {
           var app, element, name, selection, toolUI, update, _ref, _results;
@@ -7984,7 +7993,7 @@
       return new ContentEdit.Text('p', {}, '');
     };
 
-    _EditorApp.prototype.init = function(queryOrDOMElements, namingProp, fixtureTest, withIgnition) {
+    _EditorApp.prototype.init = function(queryOrDOMElements, namingProp, fixtureTest, withIgnition, container) {
       if (namingProp == null) {
         namingProp = 'id';
       }
@@ -7998,7 +8007,7 @@
       if (fixtureTest) {
         this._fixtureTest = fixtureTest;
       }
-      this.mount();
+      this.mount(container);
       if (withIgnition) {
         this._ignition = new ContentTools.IgnitionUI();
         this.attach(this._ignition);
@@ -8028,10 +8037,8 @@
           };
         })(this));
       }
-      this._toolbox = new ContentTools.ToolboxUI(ContentTools.DEFAULT_TOOLS);
+      this._toolbox = new ContentTools.ToolboxUI(ContentTools.DEFAULT_TOOLS, !!container);
       this.attach(this._toolbox);
-      this._inspector = new ContentTools.InspectorUI();
-      this.attach(this._inspector);
       this._state = 'ready';
       this._handleDetach = (function(_this) {
         return function(element) {
@@ -8135,9 +8142,13 @@
       return _results;
     };
 
-    _EditorApp.prototype.mount = function() {
+    _EditorApp.prototype.mount = function(element) {
       this._domElement = this.constructor.createDiv(['ct-app']);
-      document.body.insertBefore(this._domElement, null);
+      if (element) {
+        element.appendChild(this._domElement, null);
+      } else {
+        document.body.insertBefore(this._domElement, null);
+      }
       return this._addDOMEventListeners();
     };
 
@@ -8337,7 +8348,6 @@
       this.history.watch();
       this._state = 'editing';
       this._toolbox.show();
-      this._inspector.show();
       return this.busy(false);
     };
 

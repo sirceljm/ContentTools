@@ -4,7 +4,7 @@ class ContentTools.ToolboxUI extends ContentTools.WidgetUI
     # (e.g make the selected text bold, insert an image, etc.) The toolbox is
     # also draggable so that the user can position as required whilst editing.
 
-    constructor: (tools) ->
+    constructor: (tools, inline) ->
         super()
 
         # The tools that will populate the toolbox. The structure of the tools
@@ -18,6 +18,9 @@ class ContentTools.ToolboxUI extends ContentTools.WidgetUI
         #     ...
         # ]
         @_tools = tools
+
+        # FLag indicating if the toolbox is inline
+        @_inline = inline
 
         # Flag indicating if the toolbox is currently being dragged
         @_dragging = false
@@ -52,25 +55,34 @@ class ContentTools.ToolboxUI extends ContentTools.WidgetUI
         super()
 
     mount: () ->
+        # console.log(inline);
         # Mount the widget to the DOM
 
         # Toolbox
-        @_domElement = @constructor.createDiv([
-            'ct-widget',
-            'ct-toolbox'
-            ])
+        if @_inline
+            @_domElement = @constructor.createDiv([
+                'ct-widget',
+                'ct-toolbox-inline'
+                ])
+        else
+            @_domElement = @constructor.createDiv([
+                'ct-widget',
+                'ct-toolbox'
+                ])
+        
         @parent().domElement().appendChild(@_domElement)
 
         # Grip
-        @_domGrip = @constructor.createDiv([
-            'ct-toolbox__grip',
-            'ct-grip'
-            ])
-        @_domElement.appendChild(@_domGrip)
+        if !@_inline
+            @_domGrip = @constructor.createDiv([
+                'ct-toolbox__grip',
+                'ct-grip'
+                ])
+            @_domElement.appendChild(@_domGrip)
 
-        @_domGrip.appendChild(@constructor.createDiv(['ct-grip__bump']))
-        @_domGrip.appendChild(@constructor.createDiv(['ct-grip__bump']))
-        @_domGrip.appendChild(@constructor.createDiv(['ct-grip__bump']))
+            @_domGrip.appendChild(@constructor.createDiv(['ct-grip__bump']))
+            @_domGrip.appendChild(@constructor.createDiv(['ct-grip__bump']))
+            @_domGrip.appendChild(@constructor.createDiv(['ct-grip__bump']))
 
         # Tools
         @_domToolGroups = @constructor.createDiv(['ct-tool-groups'])
@@ -157,22 +169,23 @@ class ContentTools.ToolboxUI extends ContentTools.WidgetUI
     # Private methods
 
     _addDOMEventListeners: () ->
-        # Add DOM event listeners for the widget
+        if !@_inline
+            # Add DOM event listeners for the widget
 
-        # Allow the toolbox to be dragged to a new location by the user
-        @_domGrip.addEventListener('mousedown', @_onStartDragging)
+            # Allow the toolbox to be dragged to a new location by the user
+            @_domGrip.addEventListener('mousedown', @_onStartDragging)
 
-        # Ensure that when the window is resized the toolbox remains in view
-        @_handleResize = (ev) =>
-            if @_resizeTimeout
-                clearTimeout(@_resizeTimeout)
+            # Ensure that when the window is resized the toolbox remains in view
+            @_handleResize = (ev) =>
+                if @_resizeTimeout
+                    clearTimeout(@_resizeTimeout)
 
-            containResize = () =>
-                @_contain()
+                containResize = () =>
+                    @_contain()
 
-            @_resizeTimeout = setTimeout(containResize, 250)
+                @_resizeTimeout = setTimeout(containResize, 250)
 
-        window.addEventListener('resize', @_handleResize)
+            window.addEventListener('resize', @_handleResize)
 
         # Set up a timed event to update the status of each tool
         @_updateTools = () =>

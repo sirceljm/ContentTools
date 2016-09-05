@@ -125,7 +125,8 @@ class _EditorApp extends ContentTools.ComponentUI
             queryOrDOMElements,
             namingProp='id',
             fixtureTest=null,
-            withIgnition=true
+            withIgnition=true,
+            container
             ) ->
 
         # Initialize the editor application
@@ -138,7 +139,7 @@ class _EditorApp extends ContentTools.ComponentUI
             @_fixtureTest = fixtureTest
 
         # Mount the element to the DOM
-        @mount()
+        @mount(container)
 
         # Set up the ignition switch for page editing
         if withIgnition
@@ -176,12 +177,12 @@ class _EditorApp extends ContentTools.ComponentUI
                     @_ignition.state('ready')
 
         # Toolbox
-        @_toolbox = new ContentTools.ToolboxUI(ContentTools.DEFAULT_TOOLS)
+        @_toolbox = new ContentTools.ToolboxUI(ContentTools.DEFAULT_TOOLS, !!container)
         @attach(@_toolbox)
 
         # Inspector
-        @_inspector = new ContentTools.InspectorUI()
-        @attach(@_inspector)
+        #@_inspector = new ContentTools.InspectorUI()
+        #@attach(@_inspector)
 
         # Set as ready to edit
         @_state = 'ready'
@@ -301,10 +302,13 @@ class _EditorApp extends ContentTools.ComponentUI
             else
                 ContentEdit.removeCSSClass(domRegion, 'ct--highlight')
 
-    mount: () ->
+    mount: (element) ->
         # Mount the widget to the DOM
         @_domElement = @constructor.createDiv(['ct-app'])
-        document.body.insertBefore(@_domElement, null)
+        if(element)
+            element.appendChild(@_domElement, null)
+        else
+            document.body.insertBefore(@_domElement, null)
         @_addDOMEventListeners()
 
     paste: (element, clipboardData) ->
@@ -583,7 +587,7 @@ class _EditorApp extends ContentTools.ComponentUI
 
         # Display the editing tools
         @_toolbox.show()
-        @_inspector.show()
+        #@_inspector.show()
 
         @busy(false)
 

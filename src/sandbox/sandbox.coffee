@@ -18,7 +18,15 @@ window.onload = () ->
         ])
 
     editor = ContentTools.EditorApp.get()
-    editor.init('[data-editable], [data-fixture]', 'data-name')
+
+    console.log("aaaaaaaaaaaaaaaaa")
+    el = document.getElementById("aaa")
+    console.log(el)
+
+    editor.init('[data-editable], [data-fixture]', 'data-name', null, false, el)
+    
+    console.log("start")
+    editor.start()
 
     editor.addEventListener 'saved', (ev) ->
 
@@ -70,3 +78,9 @@ window.onload = () ->
 
     # Uncomment the following line to use the editor with pig latin translation
     #req.send(null)
+
+    console.log("loaded");
+    myScroll = new IScroll('#aaa',{
+        mouseWheel: true,
+        scrollbars: true
+    });

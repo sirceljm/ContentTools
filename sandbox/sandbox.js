@@ -138,11 +138,16 @@
   window.ImageUploader = ImageUploader;
 
   window.onload = function() {
-    var FIXTURE_TOOLS, editor, req;
+    var FIXTURE_TOOLS, editor, el, myScroll, req;
     ContentTools.IMAGE_UPLOADER = ImageUploader.createImageUploader;
     ContentTools.StylePalette.add([new ContentTools.Style('By-line', 'article__by-line', ['p']), new ContentTools.Style('Caption', 'article__caption', ['p']), new ContentTools.Style('Example', 'example', ['pre']), new ContentTools.Style('Example + Good', 'example--good', ['pre']), new ContentTools.Style('Example + Bad', 'example--bad', ['pre'])]);
     editor = ContentTools.EditorApp.get();
-    editor.init('[data-editable], [data-fixture]', 'data-name');
+    console.log("aaaaaaaaaaaaaaaaa");
+    el = document.getElementById("aaa");
+    console.log(el);
+    editor.init('[data-editable], [data-fixture]', 'data-name', null, false, el);
+    console.log("start");
+    editor.start();
     editor.addEventListener('saved', function(ev) {
       var saved;
       console.log(ev.detail().regions);
@@ -173,7 +178,7 @@
     req = new XMLHttpRequest();
     req.overrideMimeType('application/json');
     req.open('GET', 'https://raw.githubusercontent.com/GetmeUK/ContentTools/master/translations/lp.json', true);
-    return req.onreadystatechange = function(ev) {
+    req.onreadystatechange = function(ev) {
       var translations;
       if (ev.target.readyState === 4) {
         translations = JSON.parse(ev.target.responseText);
@@ -181,6 +186,11 @@
         return ContentEdit.LANGUAGE = 'lp';
       }
     };
+    console.log("loaded");
+    return myScroll = new IScroll('#aaa', {
+      mouseWheel: true,
+      scrollbars: true
+    });
   };
 
 }).call(this);

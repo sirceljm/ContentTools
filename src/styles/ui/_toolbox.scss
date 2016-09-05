@@ -19,6 +19,31 @@
      */
     $tool-size: 32px;
 
+    &.ct-toolbox-inline {
+        /**
+         * The position of the toolbox is typically determined by the position
+         * the user last placed it (this information is stored in local
+         * storage). However we set a default position for the first time the
+         * toolbox is displayed.
+         */
+        background: rgba($in-page-background, 0.9);
+        border: 1px solid rgba(lighten($in-page-background, 10%), 0.5);
+        box-shadow: 0 3px 3px $shadow-color;
+        //padding: $spacing;
+        //top: 128px;
+        width: 41px;
+
+        /**
+         * When the toolbox is being dragged to a new position by the user the
+         * dragging modifier is applied. Whilst being dragged we reduce the
+         * opacity of the toolbox to make it easier for the user to see the
+         * content being dragged over.
+         */
+        &--dragging {
+            opacity: 0.5;
+        }
+    }
+
     &.ct-toolbox {
         /**
          * The position of the toolbox is typically determined by the position
