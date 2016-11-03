@@ -142,12 +142,12 @@
     ContentTools.IMAGE_UPLOADER = ImageUploader.createImageUploader;
     ContentTools.StylePalette.add([new ContentTools.Style('By-line', 'article__by-line', ['p']), new ContentTools.Style('Caption', 'article__caption', ['p']), new ContentTools.Style('Example', 'example', ['pre']), new ContentTools.Style('Example + Good', 'example--good', ['pre']), new ContentTools.Style('Example + Bad', 'example--bad', ['pre'])]);
     editor = ContentTools.EditorApp.get();
-    console.log("aaaaaaaaaaaaaaaaa");
-    el = document.getElementById("aaa");
-    console.log(el);
-    editor.init('[data-editable], [data-fixture]', 'data-name', null, false, el);
-    console.log("start");
+    
+    var el = document.getElementById("contentTools_toolbox");
+    editor.init('[data-editable]', 'data-name', null, false, el);
     editor.start();
+    
+    // console.log(el)
     editor.addEventListener('saved', function(ev) {
       var saved;
       console.log(ev.detail().regions);
@@ -186,11 +186,6 @@
         return ContentEdit.LANGUAGE = 'lp';
       }
     };
-    console.log("loaded");
-    return myScroll = new IScroll('#aaa', {
-      mouseWheel: true,
-      scrollbars: true
-    });
   };
 
 }).call(this);
